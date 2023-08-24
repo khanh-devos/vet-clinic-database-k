@@ -92,3 +92,45 @@ ALTER TABLE animals ADD COLUMN owner_id int REFERENCES owners;
 -- INSERT INTO animals SELECT * FROM animals_old;
 -- DROP TABLE animals_old;
 -- COMMIT;
+
+-- DAY 4: conjunction table to build a many-to-many relationship
+-- Create a table 'vets':
+-- id: integer (set it as autoincremented PRIMARY KEY)
+-- name: string
+-- age: integer
+-- date_of_graduation: date
+CREATE TABLE vets (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    age INTEGER NOT NULL CHECK (age > 0),
+    date_of_graduation DATE
+);
+
+-- There is a many-to-many relationship between species and vets: 
+-- A vet(pet doctor) can be specialized in many species, 
+-- And a species can have multiple vets specialized in it.
+-- Create a "join table" called specializations to handle this relationship.
+CREATE TABLE specializations (
+    id SERIAL PRIMARY KEY,
+    vet_id INTEGER REFERENCES vets(id),
+    species_id INTEGER REFERENCES species(id)
+);
+
+-- A many-to-many relationship between the tables animals and vets: 
+-- An animal can visit multiple vets 
+-- And one vet can be visited by multiple animals. 
+-- Create a "join table" called visits to handle this relationship, 
+-- It should also keep track of the date of the visit.
+CREATE TABLE visits (
+    id SERIAL PRIMARY KEY,
+    animal_id INTEGER REFERENCES animals(id),
+    vet_id INTEGER REFERENCES vets(id),
+    date_of_visit DATE
+);
+
+
+
+
+
+
+

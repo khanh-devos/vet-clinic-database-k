@@ -84,3 +84,76 @@ FROM (
 GROUP BY species;
 
 
+-- Write queries (using JOIN) to answer the following questions:
+-- 1. What animals belong to Melody Pond?
+SELECT id, name, full_name
+    FROM animals AS A 
+    LEFT JOIN 
+    (SELECT id as i, full_name FROM owners WHERE full_name = 'Melody Pond') AS B 
+    ON A.owner_id = B.i;
+
+-- 2. List of all animals that their type is Pokemon.
+SELECT id, name, n
+    FROM animals AS A
+    LEFT JOIN
+    (SELECT id as i, name as n FROM species WHERE name = 'Pokemon') AS B
+    ON A.species_id = B.i;
+
+-- 3. List all owners and their animals, remember to include those that don't own any animal.
+SELECT id, full_name, name  
+    FROM owners AS A
+    LEFT JOIN
+    (SELECT owner_id as i, name from animals) AS B
+    ON A.id = B.i;
+
+-- 4. How many animals are there per species?
+SELECT B.name, COUNT(A.name)   
+    FROM animals AS A
+    JOIN
+    (SELECT id as i, name from species) AS B 
+    ON A.species_id = B.i
+    GROUP BY B.name;
+
+-- 5. List all Digimon owned by Jennifer Orwell.
+SELECT A.name, B.full_name 
+    FROM 
+    (
+        SELECT * FROM animals 
+        WHERE species_id = (SELECT id from species WHERE name = 'Digimon')
+    ) AS A 
+    JOIN
+    (SELECT id as i, full_name FROM owners WHERE full_name = 'Jennifer Orwell') AS B
+    ON A.owner_id = B.i;
+
+-- 6. List all animals owned by Dean Winchester that haven't tried to escape.
+SELECT A.name, B.full_name 
+    FROM 
+    (
+        SELECT * FROM animals 
+        WHERE escape_attempts = 0
+    ) AS A 
+    JOIN
+    (
+        SELECT id as i, full_name 
+        FROM owners WHERE full_name = 'Dean Winchester'
+    ) AS B
+    ON A.owner_id = B.i;
+    
+-- 7. Who owns the most animals?
+SELECT * FROM owners 
+    WHERE id = 
+    (
+        SELECT owner_id FROM 
+            (
+                SELECT owner_id, count(name) as count123 from animals
+                GROUP BY owner_id
+            ) AS A
+            WHERE A.count123 = 
+            (
+                SELECT MAX(C.count123) FROM
+                    (
+                        SELECT owner_id, count(name) as count123 from animals
+                        GROUP BY owner_id
+                    ) AS C
+            )
+    );

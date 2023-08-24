@@ -85,28 +85,28 @@ GROUP BY species;
 
 
 -- Write queries (using JOIN) to answer the following questions:
--- What animals belong to Melody Pond?
-SELECT id, name
+-- 1. What animals belong to Melody Pond?
+SELECT id, name, full_name
     FROM animals AS A 
-    INNER JOIN 
+    LEFT JOIN 
     (SELECT id as i, full_name FROM owners WHERE full_name = 'Melody Pond') AS B 
     ON A.owner_id = B.i;
 
--- List of all animals that their type is Pokemon.
-SELECT id, name 
+-- 2. List of all animals that their type is Pokemon.
+SELECT id, name, n
     FROM animals AS A
-    JOIN
+    LEFT JOIN
     (SELECT id as i, name as n FROM species WHERE name = 'Pokemon') AS B
     ON A.species_id = B.i;
 
--- List all owners and their animals, remember to include those that don't own any animal.
+-- 3. List all owners and their animals, remember to include those that don't own any animal.
 SELECT id, full_name, name  
     FROM owners AS A
     LEFT JOIN
     (SELECT owner_id as i, name from animals) AS B
     ON A.id = B.i;
 
--- How many animals are there per species?
+-- 4. How many animals are there per species?
 SELECT B.name, COUNT(A.name)   
     FROM animals AS A
     JOIN
@@ -114,7 +114,7 @@ SELECT B.name, COUNT(A.name)
     ON A.species_id = B.i
     GROUP BY B.name;
 
--- List all Digimon owned by Jennifer Orwell.
+-- 5. List all Digimon owned by Jennifer Orwell.
 SELECT A.name, B.full_name 
     FROM 
     (
@@ -125,7 +125,7 @@ SELECT A.name, B.full_name
     (SELECT id as i, full_name FROM owners WHERE full_name = 'Jennifer Orwell') AS B
     ON A.owner_id = B.i;
 
--- List all animals owned by Dean Winchester that haven't tried to escape.
+-- 6. List all animals owned by Dean Winchester that haven't tried to escape.
 SELECT A.name, B.full_name 
     FROM 
     (
@@ -139,7 +139,7 @@ SELECT A.name, B.full_name
     ) AS B
     ON A.owner_id = B.i;
     
--- Who owns the most animals?
+-- 7. Who owns the most animals?
 SELECT * FROM owners 
     WHERE id = 
     (

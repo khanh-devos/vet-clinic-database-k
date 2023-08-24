@@ -74,4 +74,87 @@ UPDATE animals SET
     owner_id = (SELECT id FROM owners WHERE full_name = 'Dean Winchester') 
     WHERE name IN ('Angemon', 'Boarmon');
 
+-- ######
+-- DAY 4: Vet clinic database: add "join table" for visits
+-- Insert the following data for vets:
+INSERT INTO vets (name, age, date_of_graduation)
+VALUES 
+    ('William Tatcher', 45, TO_DATE('20000423', 'YYYYMMDD')),
+    ('Maisy Smith', 26, TO_DATE('20190117', 'YYYYMMDD')),
+    ('Stephanie Mendez', 64, TO_DATE('19810504', 'YYYYMMDD')),
+    ('Jack Harkness', 38, TO_DATE('20080608', 'YYYYMMDD'));
+
+-- Insert the following data for specializations:
+-- Vet William Tatcher is specialized in Pokemon.
+-- Vet Stephanie Mendez is specialized in Digimon and Pokemon.
+-- Vet Jack Harkness is specialized in Digimon.
+INSERT INTO specializations (vet_id, species_id)
+VALUES
+    (
+        (SELECT id from vets WHERE name = 'William Tatcher'), 
+        (SELECT id from species WHERE name = 'Pokemon')
+        ),
+    (
+        (SELECT id from vets WHERE name = 'Stephanie Mendez'), 
+        (SELECT id from species WHERE name = 'Pokemon')
+        ),
+    (
+        (SELECT id from vets WHERE name = 'Stephanie Mendez'), 
+        (SELECT id from species WHERE name = 'Digimon')
+        ),
+    (
+        (SELECT id from vets WHERE name = 'Jack Harkness'), 
+        (SELECT id from species WHERE name = 'Pokemon')
+        );
+
+
+-- Insert the following data for visits:
+-- Agumon visited William Tatcher on May 24th, 2020.
+-- Agumon visited Stephanie Mendez on Jul 22th, 2020.
+-- Gabumon visited Jack Harkness on Feb 2nd, 2021.
+INSERT INTO visits (animal_id, vet_id, date_of_visit)
+VALUES
+    (1, 1, TO_DATE('20200524', 'YYYYMMDD')),
+    (1, 3, TO_DATE('20200722', 'YYYYMMDD')),
+    (2, 4, TO_DATE('20210202', 'YYYYMMDD')),
+
+-- Pikachu visited Maisy Smith on Jan 5th, 2020.
+-- Pikachu visited Maisy Smith on Mar 8th, 2020.
+-- Pikachu visited Maisy Smith on May 14th, 2020.
+    (3, 2, TO_DATE('20200105', 'YYYYMMDD')),
+    (3, 2, TO_DATE('20200308', 'YYYYMMDD')),
+    (3, 2, TO_DATE('20200514', 'YYYYMMDD')),
+
+-- Devimon visited Stephanie Mendez on May 4th, 2021.
+-- Charmander visited Jack Harkness on Feb 24th, 2021.
+-- Plantmon visited Maisy Smith on Dec 21st, 2019.
+    (4, 3, TO_DATE('20210504', 'YYYYMMDD')),
+    (5, 4, TO_DATE('20210224', 'YYYYMMDD')),
+    (6, 2, TO_DATE('20191221', 'YYYYMMDD')),
+
+-- Plantmon visited William Tatcher on Aug 10th, 2020.
+-- Plantmon visited Maisy Smith on Apr 7th, 2021.
+-- Squirtle visited Stephanie Mendez on Sep 29th, 2019.
+    (6, 1, TO_DATE('20200810', 'YYYYMMDD')),
+    (6, 2, TO_DATE('20210407', 'YYYYMMDD')),
+    (7, 3, TO_DATE('20190929', 'YYYYMMDD')),
+
+-- Angemon visited Jack Harkness on Oct 3rd, 2020.
+-- Angemon visited Jack Harkness on Nov 4th, 2020.
+-- Boarmon visited Maisy Smith on Jan 24th, 2019.
+    (8, 4, TO_DATE('20201003', 'YYYYMMDD')),
+    (8, 4, TO_DATE('20201104', 'YYYYMMDD')),
+    (9, 2, TO_DATE('20190124', 'YYYYMMDD')),
+
+-- Boarmon visited Maisy Smith on May 15th, 2019.
+-- Boarmon visited Maisy Smith on Feb 27th, 2020.
+-- Boarmon visited Maisy Smith on Aug 3rd, 2020.
+    (9, 2, TO_DATE('20190515', 'YYYYMMDD')),
+    (9, 2, TO_DATE('20200227', 'YYYYMMDD')),
+    (9, 2, TO_DATE('20200803', 'YYYYMMDD')),
+
+-- Blossom visited Stephanie Mendez on May 24th, 2020.
+-- Blossom visited William Tatcher on Jan 11th, 2021.
+    (10, 3, TO_DATE('20200524', 'YYYYMMDD')),
+    (10, 1, TO_DATE('20210111', 'YYYYMMDD'));
 

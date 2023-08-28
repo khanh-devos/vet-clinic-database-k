@@ -28,7 +28,8 @@ CREATE TABLE OWNERS (
 CREATE TABLE SPECIES (
     id SERIAL,
     name VARCHAR(100),
-    PRIMARY KEY (id, name)
+    -- PRIMARY KEY (id, name) // 2 primary keys allowable only at initial creating.
+    PRIMARY KEY (id)
 )
 
 -- ALTER TABLE species ADD PRIMARY KEY (name);  
@@ -128,9 +129,58 @@ CREATE TABLE visits (
     date_of_visit DATE
 );
 
+-- ######################################
+-- Database performance audit
+-- ######################################
 
+-- start by: psql -U postgres
+-- step 1. Add an email column to your owners table
+ALTER TABLE owners ADD COLUMN email VARCHAR(120);
 
+-- step 2. Add 3.594.280 visits considering you have 10 animals, 4 vets, and it will use around ~87.000 timestamps (~4min approx.)
+INSERT INTO visits (animal_id, vet_id, date_of_visit) 
+SELECT * FROM (SELECT id FROM animals) animal_ids, 
+(SELECT id FROM vets) vets_ids, generate_series('1980-01-01'::timestamp, '2021-01-01', '4 hours') visit_timestamp;
 
+-- step 3. Add 2.500.000 owners with full_name = 'Owner <X>' and email = 'owner_<X>@email.com' (~2min approx.)
+insert into owners (full_name, email) 
+select 'Owner ' || generate_series(1,2500000), 'owner_' || generate_series(1,2500000) || '@mail.com';
 
+-- Depending on your machine speed: Check that by running 
+-- If you get Execution time: X ms and X >= 1000: that should be enough, you can continue to the project requirements. 
+explain analyze SELECT COUNT(*) FROM visits where animal_id = 4: 
+-- If you get Execution time: X ms and X < 1000: go back to point 3. and repeat until you get a value bigger than 1000ms.
+
+-- The following queries are taking too much time (1000ms can be considered 
+-- as too much time for database query).
+explain analyze SELECT COUNT(*) FROM visits where animal_id = 4;
+explain analyze SELECT * FROM visits where vet_id = 2;
+explain analyze SELECT * FROM owners where email = 'owner_18327@mail.com';
+
+-- *********CHALLENGES: *************
+-- 1. Find a way to decrease the execution time of the first query.
+BEGIN;
+ALTER TABLE animals ADD COLUMN total_visit INTEGER;
+UPDATE animals   
+SET total_visit = (SELECT COUNT(*) FROM visits where animal_id = 4)
+WHERE id = 4;
+
+explain analyze SELECT total_visit FROM animals where id = 4;
+ROLLBACK;
+
+-- 2. Find a way to decrease the execution time of the remaining two queries.
+BEGIN;
+CREATE TABLE vet_id_2_data 
+AS (SELECT * FROM visits where vet_id = 2);
+
+explain analyze SELECT * FROM vet_id_2_data;
+ROLLBACK;
+
+BEGIN;
+CREATE TABLE owner_18327_data 
+AS (SELECT * FROM owners where email = 'owner_18327@mail.com');
+
+explain analyze SELECT * FROM owner_18327_data;
+ROLLBACK;
 
 

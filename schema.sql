@@ -176,4 +176,8 @@ AS (SELECT * FROM visits where vet_id = 2);
 explain analyze SELECT * FROM vet_id_2_data;
 ROLLBACK;
 
-
+BEGIN;
+CREATE TABLE owner_18327_data
+AS (SELECT * FROM owners where email = 'owner_18327@mail.com');
+explain analyze SELECT * FROM owner_18327_data;
+ROLLBACK;

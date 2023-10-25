@@ -130,7 +130,7 @@ CREATE TABLE visits (
 );
 
 -- ######################################
--- Database performance audit
+-- Query performance audit
 -- ######################################
 
 -- start by: psql -U postgres
@@ -148,7 +148,7 @@ select 'Owner ' || generate_series(1,2500000), 'owner_' || generate_series(1,250
 
 -- Depending on your machine speed: Check that by running 
 -- If you get Execution time: X ms and X >= 1000: that should be enough, you can continue to the project requirements. 
-explain analyze SELECT COUNT(*) FROM visits where animal_id = 4: 
+explain analyze SELECT COUNT(*) FROM visits where animal_id = 4; 
 -- If you get Execution time: X ms and X < 1000: go back to point 3. and repeat until you get a value bigger than 1000ms.
 
 -- The following queries are taking too much time (1000ms can be considered 
@@ -168,12 +168,49 @@ WHERE id = 4;
 explain analyze SELECT total_visit FROM animals where id = 4;
 ROLLBACK;
 
+-- 1-1 Index solution
+-- Notice: "Index Data" is independent with the table itself.
+-- Searching from the Index Data or the table will auto-depends on The DataBase
+-- default the algorithm or method is the btree (binary tree)
+CREATE INDEX index_animal ON visits(animal_id);
+explain analyze SELECT COUNT(*) FROM visits where animal_id = 4;
+DROP INDEX index_animal;
+
+-- 1-2 use method hash for storing => TOO LONG for setting up.
+-- hash algorithm is very long. SHOULD FORGET IT.
+CREATE INDEX index_animal ON visits USING hash(animal_id);
+DROP INDEX index_animal;
+
 -- 2. Find a way to decrease the execution time of the remaining two queries.
 BEGIN;
 CREATE TABLE vet_id_2_data 
 AS (SELECT * FROM visits where vet_id = 2);
-
 explain analyze SELECT * FROM vet_id_2_data;
+ROLLBACK
+
+-- 2-2
+-- Index 2 columns is not usefull for single-column lookup
+-- It is exactly usefull for single-column lookup
+CREATE INDEX index_vet ON visits(vet_id);
+explain analyze SELECT * FROM visits where vet_id = 2;
+-- It is not effective because it could not run "index scan only"
+-- It had to user "Bitmap scan" because there are so many lines.
+DROP INDEX index_vet;
+
+
+-- 3-1
+-- 1. Find a way to decrease the execution time.
+BEGIN;
+CREATE TABLE owner_18327_data
+AS (SELECT * FROM owners where email = 'owner_18327@mail.com');
+explain analyze SELECT * FROM owner_18327_data;
 ROLLBACK;
 
+-- 3-2 Use index:
+CREATE INDEX index_owner ON owners(email);
+explain analyze SELECT * FROM owners where email = 'owner_18327@mail.com';
 
+
+-- ==================DELETE MULTI-TABLE=========================
+DELETE FROM owners WHERE id >= 7;
+DELETE FROM visits WHERE id >= 20;

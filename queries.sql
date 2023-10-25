@@ -107,12 +107,11 @@ SELECT id, full_name, name
     ON A.id = B.i;
 
 -- 4. How many animals are there per species?
-SELECT B.name, COUNT(A.name)   
+SELECT S.name, COUNT(A.name)   
     FROM animals AS A
-    JOIN
-    (SELECT id as i, name from species) AS B 
-    ON A.species_id = B.i
-    GROUP BY B.name;
+    LEFT JOIN species AS S 
+    ON A.species_id = S.id
+    GROUP BY S.name;
 
 -- 5. List all Digimon owned by Jennifer Orwell.
 SELECT A.name, B.full_name 

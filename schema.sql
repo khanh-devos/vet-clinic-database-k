@@ -210,7 +210,6 @@ ROLLBACK;
 CREATE INDEX index_owner ON owners(email);
 explain analyze SELECT * FROM owners where email = 'owner_18327@mail.com';
 
-
 -- ==================DELETE MULTI-TABLE=========================
 DELETE FROM owners WHERE id >= 7;
 DELETE FROM visits WHERE id >= 20;
